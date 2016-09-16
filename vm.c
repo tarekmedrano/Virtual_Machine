@@ -49,6 +49,7 @@ void lit() {
 }
 
 //OPR - Perform arithmetic or logical operations defined in detail below
+//Tarek
 void opr() {
 	
 }
@@ -92,6 +93,7 @@ void sio() {
 }
 
 //Arithmetic/ logic instructions for OPR instruction
+//Tarek
 void arithmeticInstruction() {
 	
 }
