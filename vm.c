@@ -20,12 +20,13 @@ struct {
 	int m;
 } instruction;
 
+void lit(struct instruction instruct, int stack[], int* sp);
 int opr(struct instruction instruct, int stack[], int* sp, int* bp, int* pc);
 
 //read in pm0 code, print assembler version, and execute 
 int main() {
 	
-	//Initial values
+    //Initial values
     stack[1] = 0;
     stack[2] = 0;
     stack[3] = 0;
@@ -50,10 +51,13 @@ int main() {
 //Instruction Set Architecture (ISA)
 //These are the basic instructions provided on Wocjan's bitbucket
 
-//LIT - Push value M onto stack
+//LIT
+//Increment stack pointer by 1 then push instruction modifier onto stack
+//This is assuming the stack pointer points to data so we must increment first
 //Austin
-void lit() {
-	
+void lit( struct instruction instruct, int stack[], int* sp) {
+	*sp = *sp + 1;
+	stack[*sp] = instruct.m;
 }
 
 //OPR
