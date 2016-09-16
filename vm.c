@@ -20,6 +20,8 @@ struct {
 	int m;
 } instruction;
 
+int opr(struct instruction instruct, int stack[], int* sp, int* bp, int* pc);
+
 //read in pm0 code, print assembler version, and execute 
 int main() {
 	
@@ -33,9 +35,15 @@ int main() {
     int pc = 0;
     int ir = 0;
 	
+    //Store the current instruction here to be
+    //passed into the functions
+    //start with initial values
+    struct instruction instruct;
+    instruct.op = 0;
+    instruct.l = 0;
+    instruct.m = 0;	
 	
-	
-	return 0;
+    return 0;
 }
 
 
@@ -48,9 +56,103 @@ void lit() {
 	
 }
 
-//OPR - Perform arithmetic or logical operations defined in detail below
-void opr() {
+//OPR
+//Tarek
+//Reads in the instruction modifier to decide what arithmetic/logical operation
+//to run
+int opr(struct instruction instruct, int stack[], int* sp, int* bp, int* pc) {
+	switch(instruct.m){
+	case 0:
+		//exit if we are at the base level
+		if(*bp == 1)
+			return 0;
+		*sp = *bp -1;
+		*pc = stack[*sp + 4];
+		*bp = stack[*sp + 3];
+		break;
 	
+	
+	//NEG
+	case 1:
+		stack[*sp] = -stack[*sp];
+		break;
+		
+	//for all the below cases, -1 from the sp		
+	//ADD	
+	case 2:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] + stack[*sp +1];
+		break;
+		
+	//SUB
+	case 3:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] * stack[*sp +1];
+		break;
+		
+	//MUL
+	case 4:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] * stack[*sp +1];
+		break;
+	
+	//DIV
+	case 5:	
+		*sp -= 1;
+		stack[*sp] = stack[*sp]/stack[*sp +1];
+		break;
+		
+	//ODD
+	case 6:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] %2;
+		break;
+		
+	//MOD
+	case 7:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] % stack[(*sp) +1];
+		break;
+	
+	//EQL
+	case 8:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] == stack[*sp +1];
+		break;
+		
+	//NEQ
+	case 9:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] != stack[*sp +1];
+		break;
+	
+	//LSS
+	case 10:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] < stack[*sp +1];
+		break;		
+	
+	//LEQ
+	case 11:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] <= stack[*sp +1];
+		break;		
+	
+	//GTR
+	case 12:
+		*sp -= 1;
+		stack[*sp] = stack[*sp] > stack[*sp +1];
+		break;		
+	
+	//GEQ
+	case 13:	
+		*sp -= 1;
+		stack[*sp] = stack[*sp] >= stack[*sp +1];
+		break;
+		
+	}
+	
+	return 1;
 }
 
 //LOD - Get value at offset M in frame L levels down and push it
@@ -91,10 +193,6 @@ void sio() {
 	
 }
 
-//Arithmetic/ logic instructions for OPR instruction
-void arithmeticInstruction() {
-	
-}
 
 
 
