@@ -178,15 +178,20 @@ void cal() {
 void inc() {
 	
 }
-
+//Gabriela
+//Work in progress
 //JMP - Jumpt to M
-void jmp() {
-	
+void jmp(int* pc, struct instruction instruct) {
+	*pc = instruct.m;
 }
-
+//Gabriela
+//Work in progress
 //JPC - Pop stack and jump to M if value is equal to 0
-void jpc() {
-	
+void jpc(int* pc, int* sp, struct instruction instruct) {
+	if(stack[*sp] == 0){
+		*pc = instruct.m;
+	}
+	*sp -= 1;
 }
 
 //SIO - Depending on the modifier it will either
