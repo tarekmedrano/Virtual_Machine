@@ -14,11 +14,11 @@
 
 int stack[ MAX_STACK_HEIGHT ];
 
-struct {
+struct instruction{
 	int op;
 	int l;
 	int m;
-} instruction;
+} ;
 
 void lit(struct instruction instruct, int stack[], int* sp);
 int opr(struct instruction instruct, int stack[], int* sp, int* bp, int* pc);
