@@ -24,8 +24,15 @@ void lit(struct instruction instruct, int stack[], int* sp);
 int opr(struct instruction instruct, int stack[], int* sp, int* bp, int* pc);
 
 //read in pm0 code, print assembler version, and execute 
-int main() {
+int main(int argc, char** argv) {
 	
+    char* argument;
+    
+    argc--; argv++;
+	argument = *argv;
+    
+    FILE* file = fopen(argument,"r");
+    
     //Initial values
     stack[1] = 0;
     stack[2] = 0;
@@ -194,12 +201,30 @@ void jpc(int* pc, int* sp, struct instruction instruct) {
 	*sp -= 1;
 }
 
+//Jonathan
+//I'm assuming he wants us to read and print from console?
 //SIO - Depending on the modifier it will either
 //Pop stack and print out value,
 //Read in input from user and push it,
 //or Halt the machine
-void sio() {
-	
+void sio(struct instruction instruct, int* sp) {
+    switch (instruct.m) {
+        
+    //Output (OUT)
+    case 0:
+        printf("%d\n",stack[*sp]);
+        *sp = *sp - 1;
+        
+    //Input (INP)
+    case 1:
+        *sp = *sp + 1;
+        scanf("%d",&stack[*sp]);
+    
+    //Halt (HLT)
+    case 2:
+        exit(0);
+    
+    }
 }
 
 
