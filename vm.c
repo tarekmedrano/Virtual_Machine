@@ -94,8 +94,8 @@ int main(int argc, char** argv) {
     printCode();
     
     printf("Execution:\n");
-    printf("pc bp sp stack\n");
-    printf("%d  %d  %d\n",pc,bp,sp);
+    printf("              pc  bp  sp    stack\n");
+    printf("              %2d  %2d  %2d\n", pc, bp, sp);
     
     while (!halt) {
         int index = pc;
@@ -108,6 +108,7 @@ int main(int argc, char** argv) {
 }
 
 void initialize() {
+	stack[0] = 0;
     stack[1] = 0;
     stack[2] = 0;
     stack[3] = 0;
@@ -122,11 +123,11 @@ void printCode() {
         char isO[ISIZE+1] = "NUL";
         char isL[MAX_ARG_LENGTH];
         char isM[MAX_ARG_LENGTH];
-        
-	if( i < 100 )
-	    printf(" ");
-	else if( i < 10 )
-	    printf(" ");
+       
+		if( i < 100 )
+			printf(" ");
+		else if( i < 10 )
+			printf(" ");
         sprintf(isL,"%d",isr.l);
         sprintf(isM,"%2d",isr.m);
         
@@ -134,8 +135,8 @@ void printCode() {
         case 1: strncpy(isO,"LIT",ISIZE); strncpy(isL," ",ISIZE); break;
         case 2:
             switch(isr.m) {
-            case 0:  strncpy(isO,"RET",ISIZE); break;
-            	     strncpy(isL," ",ISIZE); strncpy(isM,"  ",ISIZE); 
+            case 0:  strncpy(isO,"RET",ISIZE);
+					 strncpy(isL," ",ISIZE); strncpy(isM,"  ",ISIZE); break;
             case 1:  strncpy(isO,"NEG",ISIZE); break;
             case 2:  strncpy(isO,"ADD",ISIZE); break;
             case 3:  strncpy(isO,"SUB",ISIZE); break;
@@ -167,7 +168,6 @@ void printCode() {
         default: break;
         }
         
-        //sprintf(codeOutput[i],"%d %s %s %s",i,isO,isL,isM);
         sprintf(codeOutput[i],"%2d %s %s %s ",i,isO,isL,isM);
         printf("%s\n",codeOutput[i]);
     }
@@ -176,8 +176,6 @@ void printCode() {
 
 void printExecution(int index) {
     printf("%s  %2d  %2d  %2d  ",codeOutput[index],pc,bp,sp);
-    //printf("%s \t %d  %d  %d  \t",codeOutput[index],pc,bp,sp);
-    printf("\t");
     
     //why start at i=1? whats stack[0]?
     //he said stack[0] should always be 0 -Austin
