@@ -45,6 +45,7 @@ void sio();
 
 void readInstruction(struct instruction* ir, char* line, int len);
 int nextToken(char* token, int tokenLen, char* line, int lineLen, int index);
+int base( int level, int b);
 
 //read in pm0 code, print assembler version, and execute 
 int main(int argc, char** argv) {
@@ -219,24 +220,35 @@ int opr() {
 }
 
 //LOD - Get value at offset M in frame L levels down and push it
+//Jerasimos
 void lod() {
-	
+	sp = sp + 1;
+	stack[sp] - stack[base(instruct.l, bp) + instruct.m];
 }
 
 //STO - Pop stack and insert value at offset M in frame L levels down
+//Jerasimos
 void sto() {
-	
+	stack[ base(instruct.l, bp) + instruct.m ] = stack[sp];
 }
 
 //CAL - Call procedure at M (generates new stack frame
+//Jerasimos
 void cal() {
-	
+	stack[sp + 1] = 0;
+	stack[sp + 2] = base(instruct.l, bp);
+	stack[sp + 3] = bp;
+	stack[sp + 4] = pc;
+	bp = sp + 1;
+	pc = instruct.m;
 }
 
 //INC - Allocate M locals on stack
+//Jerasimos
 void inc() {
-	
+	sp = sp + instruct.m;
 }
+
 //Gabriela
 //Work in progress
 //JMP - Jump to M
@@ -327,7 +339,13 @@ int nextToken(char* token, int tokenLen, char* line, int lineLen, int index) {
     return index;
 }
 
-
+//Jerasimos
+int base( int level, int b){
+	while(level > 0){
+		b = stack[b+1];
+		level--;
+	}
+}
 
 
 
