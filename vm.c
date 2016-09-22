@@ -167,7 +167,13 @@ void printCode() {
 }
 
 void printExecution(int index) {
-    printf("%s \t\t %d  %d  %d\n",codeOutput[index],pc,bp,sp);
+    printf("%s \t %d  %d  %d  \t",codeOutput[index],pc,bp,sp);
+    printf("\t");
+    //fix this to only show whats under stack pointer
+    for (int i=0; i<20; i++) {
+        printf("%d  ",stack[i]);
+    }
+    printf("\n");
 }
 
 void fetch() {
@@ -208,8 +214,16 @@ int execute() {
 //This is assuming the stack pointer points to data so we must increment first
 //Austin
 void lit() {
-	sp = sp + 1;
-	stack[sp] = ir.m;
+    //Jonathan
+    //Wocjan says you should increment sp by 1 then push
+    //but from the output it looks like you push then increment?
+    
+    sp = sp + 1;
+    stack[sp] = ir.m;
+	
+#if DEBUG
+    printf("LIT set stack[sp=%d]=%d\n",sp,ir.m);
+#endif
 }
 
 //OPR
