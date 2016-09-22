@@ -16,6 +16,7 @@ worked on the functions : Lod, Sto, Cal, and Inc.
 posting solutions to the  VM.c file fixing the errors and warnings that it would spit out.
 found the solution to the seg fault.
 tested inputs.
+added a base funtion.
 
 
 
