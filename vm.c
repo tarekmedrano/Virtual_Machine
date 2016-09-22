@@ -118,7 +118,8 @@ void initialize() {
 //Does this have to be formated into columns like in trace files?
 void printCode() {
     printf("PM/0 code:\n\n");
-    for (int i=0; i<numInstructions; i++) {
+    int i;
+    for (i=0; i<numInstructions; i++) {
         struct instruction isr = code[i];
         char isO[ISIZE+1] = "NUL";
         char isL[MAX_ARG_LENGTH];
