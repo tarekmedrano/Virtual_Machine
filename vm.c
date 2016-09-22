@@ -10,7 +10,7 @@
 #include <string.h>
 
 //Set to 0 when turning in assignment
-#define DEBUG               1
+#define DEBUG               0
 
 #define MAX_LINE_LENGTH     256
 #define MAX_ARG_LENGTH      16
@@ -80,15 +80,13 @@ int main(int argc, char** argv) {
         
         int hasIr = readInstruction(&instruct, line, MAX_LINE_LENGTH);
         
-        if (!hasIr) {
-            c--;
-            break;
-        }
+        if (!hasIr) break;
         
         code[c] = instruct;
         
         c++;
     }
+    
     numInstructions = c;
     
     initialize();
@@ -429,7 +427,7 @@ int readInstruction(struct instruction* instruct, char* line, int len) {
     index = nextToken(arg0,MAX_ARG_LENGTH,line,len,index);
     
     //No token is found (empty line)
-    if (index==MAX_ARG_LENGTH) return 0;
+    if (index==len) return 0;
     
     index = nextToken(arg1,MAX_ARG_LENGTH,line,len,index);
     
