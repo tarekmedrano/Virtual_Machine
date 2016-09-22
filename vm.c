@@ -9,32 +9,43 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE_LENGTH 256
-#define MAX_ARG_LENGTH 16
+//Set to 0 when turning in assignment
+#define DEBUG               0
 
-#define MAX_STACK_HEIGHT 2000
-#define MAX_CODE_LENGTH 500
-#define MAX_LEXI_LEVELS 3
+#define MAX_LINE_LENGTH     256
+#define MAX_ARG_LENGTH      16
 
-int sp = 0;
-int bp = 1;
-int pc = 0;
+#define MAX_STACK_HEIGHT    2000
+#define MAX_CODE_LENGTH     500
+#define MAX_LEXI_LEVELS     3
+
+#define ISIZE               3 //length of instructions
+
+char codeOutput[MAX_LINE_LENGTH][MAX_CODE_LENGTH];
+
+int  sp = 0;
+int  bp = 1;
+int  pc = 0;
+
+int  halt = 0;
 
 struct instruction{
 	int op;
 	int l;
 	int m;
 } ir, code[MAX_CODE_LENGTH];
-int numInstructions = 0;
+int  numInstructions = 0;
 
+int  stack[ MAX_STACK_HEIGHT ];
+
+void initialize();
+void printCode();
+void printExecution();
 void fetch();
-void execute();
-
-int stack[ MAX_STACK_HEIGHT ];
-struct instruction code[ MAX_CODE_LENGTH ];
+int  execute();
 
 void lit();
-int opr();
+int  opr();
 void lod();
 void sto();
 void cal();
@@ -43,9 +54,9 @@ void jmp();
 void jpc();
 void sio();
 
-void readInstruction(struct instruction* ir, char* line, int len);
-int nextToken(char* token, int tokenLen, char* line, int lineLen, int index);
-int base( int level, int b);
+int  readInstruction(struct instruction* ir, char* line, int len);
+int  nextToken(char* token, int tokenLen, char* line, int lineLen, int index);
+int  base( int level, int b);
 
 //read in pm0 code, print assembler version, and execute 
 int main(int argc, char** argv) {
@@ -54,32 +65,109 @@ int main(int argc, char** argv) {
     char line[MAX_LINE_LENGTH];
     
     argc--; argv++;
-	argument = *argv;
+    argument = *argv;
     
     FILE* file = fopen(argument,"r");
-   
+
+    if (file==NULL) {
+        printf("File not found: %s\n",argument);
+        exit(0);
+    }
+    
     int c = 0;
     while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
-        
         struct instruction instruct;
-        readInstruction(&instruct, line, MAX_LINE_LENGTH);
+        
+        int hasIr = readInstruction(&instruct, line, MAX_LINE_LENGTH);
+        
+        if (!hasIr) break;
+        
         code[c] = instruct;
         
         c++;
     }
-    numInstructions = c;
+    numInstructions = c-1;
     
-    //Initial values
+    initialize();
+
+    printCode();
+    
+    printf("Execution:\n");
+    printf("pc bp sp stack\n");
+    printf("%d  %d  %d\n",pc,bp,sp);
+    
+    while (!halt) {
+        int index = pc;
+        fetch();
+        execute();
+        printExecution(index);
+    }
+    
+    return 0;
+}
+
+void initialize() {
     stack[1] = 0;
     stack[2] = 0;
     stack[3] = 0;
-    
-    while (1) {
-        fetch();
-        execute();
+}
+
+//Does this have to be formated into columns like in trace files?
+void printCode() {
+    printf("PM/0 code:\n\n");
+    for (int i=0; i<numInstructions; i++) {
+        struct instruction isr = code[i];
+        char isO[ISIZE+1] = "NUL";
+        char isL[MAX_ARG_LENGTH];
+        char isM[MAX_ARG_LENGTH];
+        
+        sprintf(isL,"%d",isr.l);
+        sprintf(isM,"%d",isr.m);
+        
+        switch (isr.op) {
+        case 1: strncpy(isO,"LIT",ISIZE); strncpy(isL," ",ISIZE); break;
+        case 2:
+            switch(isr.m) {
+            case 0:  strncpy(isO,"RET",ISIZE); break;
+            case 1:  strncpy(isO,"NEG",ISIZE); break;
+            case 2:  strncpy(isO,"ADD",ISIZE); break;
+            case 3:  strncpy(isO,"SUB",ISIZE); break;
+            case 4:  strncpy(isO,"MUD",ISIZE); break;
+            case 5:  strncpy(isO,"DIV",ISIZE); break;
+            case 6:  strncpy(isO,"ODD",ISIZE); break;
+            case 7:  strncpy(isO,"MOD",ISIZE); break;
+            case 8:  strncpy(isO,"EQL",ISIZE); break;
+            case 9:  strncpy(isO,"NEQ",ISIZE); break;
+            case 10: strncpy(isO,"LSS",ISIZE); break;
+            case 11: strncpy(isO,"LEQ",ISIZE); break;
+            case 12: strncpy(isO,"GTR",ISIZE); break;
+            case 13: strncpy(isO,"GEQ",ISIZE); break;
+            }
+            strncpy(isL," ",ISIZE); strncpy(isM," ",ISIZE); break;
+        case 3: strncpy(isO,"LOD",ISIZE); break;
+        case 4: strncpy(isO,"STO",ISIZE); break;
+        case 5: strncpy(isO,"CAL",ISIZE); break;
+        case 6: strncpy(isO,"INC",ISIZE); strncpy(isL," ",ISIZE); break;
+        case 7: strncpy(isO,"JMP",ISIZE); strncpy(isL," ",ISIZE); break;
+        case 8: strncpy(isO,"JPC",ISIZE); strncpy(isL," ",ISIZE); break;
+        case 9:
+            switch(isr.m) {
+            case 0: strncpy(isO,"OUT",ISIZE); break;
+            case 1: strncpy(isO,"INP",ISIZE); break;
+            case 2: strncpy(isO,"HLT",ISIZE); break;
+            }
+            strncpy(isL," ",ISIZE); strncpy(isM," ",ISIZE); break;
+        default: break;
+        }
+        
+        sprintf(codeOutput[i],"%d %s %s %s",i,isO,isL,isM);
+        printf("%s\n",codeOutput[i]);
     }
-	
-    return 0;
+    printf("\n");
+}
+
+void printExecution(int index) {
+    printf("%s \t\t %d  %d  %d\n",codeOutput[index],pc,bp,sp);
 }
 
 void fetch() {
@@ -87,24 +175,28 @@ void fetch() {
     pc = pc + 1;
 }
 
-void execute() {
+int execute() {
     //won't happen if last instruction is [9 0 2]
     if (pc>numInstructions) {
+#if DEBUG
         printf("No more instructions to run.\n"); 
-        exit(1);
+#endif
+        exit(0);
     } else {
         switch (ir.op) {
-        //case 1: lit();
-        //case 2: opr();
-        //case 3: lod();
-        //case 4: sto();
-        //case 5: cal();
-        //case 6: inc();
-        //case 7: jmp();
-        //case 8: jpc();
-        case 9: sio();
+        case 1: lit(); return 1;
+        case 2: opr(); return 1;
+        case 3: lod(); return 1;
+        case 4: sto(); return 1;
+        case 5: cal(); return 1;
+        case 6: inc(); return 1;
+        case 7: jmp(); return 1;
+        case 8: jpc(); return 1;
+        case 9: sio(); return 1;
+        default: return 0;
         }
     }
+    return 0;
 }
 
 
@@ -214,6 +306,12 @@ int opr() {
 		stack[sp] = stack[sp] >= stack[sp +1];
 		break;
 		
+#if DEBUG
+	default:
+        printf("Error finding ir.m in OPR\n");
+        break;
+#endif
+		
 	}
 	
 	return 1;
@@ -279,32 +377,49 @@ void sio() {
     case 0:
         printf("%d\n",stack[sp]);
         sp = sp - 1;
+        break;
         
     //Input (INP)
     case 1:
         sp = sp + 1;
         scanf("%d",&stack[sp]);
+        break;
     
     //Halt (HLT)
     case 2:
-        exit(0);
+        halt = 1;
+        break;
+        
+#if DEBUG    
+    default:
+        printf("Error finding ir.m in SIO\n");
+        break;
+#endif
     
     }
 }
 
-void readInstruction(struct instruction* instruct, char* line, int len) {
+int readInstruction(struct instruction* instruct, char* line, int len) {
     char arg0[MAX_ARG_LENGTH];
     char arg1[MAX_ARG_LENGTH];
     char arg2[MAX_ARG_LENGTH];
     
     int index = 0;
+    
     index = nextToken(arg0,MAX_ARG_LENGTH,line,len,index);
+    
+    //No token is found (empty line)
+    if (index==MAX_ARG_LENGTH) return 0;
+    
     index = nextToken(arg1,MAX_ARG_LENGTH,line,len,index);
+    
     index = nextToken(arg2,MAX_ARG_LENGTH,line,len,index);
     
     instruct->op = atoi(arg0);
     instruct->l = atoi(arg1);
-    instruct->m = atoi(arg2); 
+    instruct->m = atoi(arg2);
+    
+    return 1;
 }
 
 //Char at line[index] must not be a space
