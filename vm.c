@@ -62,38 +62,35 @@ int  base( int level, int b);
 //read in pm0 code, print assembler version, and execute 
 int main(int argc, char** argv) {
 	
-    char* argument;
+    int c = 0;
     char line[MAX_LINE_LENGTH];
+    struct instruction instruct;
+	int hasIr, index;
+    argc--;
     
-    argc--; argv++;
-    argument = *argv;
-    
-    FILE* file = fopen(argument,"r");
+    FILE* file = fopen( argv[1],"r");
 
     if (file==NULL) {
-        printf("File not found: %s\n",argument);
+        printf("File not found");
         exit(0);
     }
     
-    int c = 0;
     while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
-        struct instruction instruct;
         
         int hasIr = readInstruction(&instruct, line, MAX_LINE_LENGTH);
-        
-        if (!hasIr) break;
+        if (!hasIr) 
+			break;
         
         code[c] = instruct;
-        
         c++;
     }
     
+	fclose(file);
     numInstructions = c;
-    
     initialize();
-
     printCode();
     
+	//Start of execution output
     printf("Execution:\n");
     printf("                      pc   bp   sp    stack\n");
     printf("                    %4d %4d %4d\n", pc, bp, sp);
@@ -108,6 +105,7 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+//Set the first stack values
 void initialize() {
 	stack[0] = 0;
     stack[1] = 0;
@@ -115,7 +113,7 @@ void initialize() {
     stack[3] = 0;
 }
 
-//Does this have to be formated into columns like in trace files?
+//Prints the input including the instruction names
 void printCode() {
     printf("PM/0 code:\n\n");
     int i;
@@ -175,11 +173,12 @@ void printCode() {
     printf("\n");
 }
 
+//Prints individual instruction outputs
 void printExecution(int index) {
+	
     printf("%s  %4d %4d %4d  ",codeOutput[index],pc,bp,sp);
     
-    //why start at i=1? whats stack[0]?
-    //he said stack[0] should always be 0 -Austin
+	//Stack values and necessary vertical bars
     int i;
     printf("  ");
     for (int i=1; i<sp+1; i++) {
@@ -190,16 +189,19 @@ void printExecution(int index) {
     printf("\n");
 }
 
+//Fetch
 void fetch() {
     ir = code[pc];
     pc = pc + 1;
 }
 
+//Execute
 int execute() {
-    //won't happen if last instruction is [9 0 2]
+    
+	//Won't happen if last instruction is [9 0 2]
     if (pc>numInstructions) {
 #if DEBUG
-        printf("No more instructions to run.\n"); 
+		printf("No more instructions to run.\n"); 
 #endif
         exit(0);
     } else {
@@ -220,13 +222,10 @@ int execute() {
 }
 
 
-//Instruction Set Architecture (ISA)
-//These are the basic instructions provided on Wocjan's bitbucket
-
+//Start of Instruction Set Architecture (ISA)
 //LIT
 //Increment stack pointer by 1 then push instruction modifier onto stack
 //Increment first since sp starts at 0, and stack[0] shouldn't be changed from 0
-//Austin
 void lit() {
     sp = sp + 1;
     stack[sp] = ir.m;
@@ -237,15 +236,16 @@ void lit() {
 }
 
 //OPR
-//Tarek
 //Reads in the instruction modifier to decide what arithmetic/logical operation
 //to run
 int opr() {
+	
 	switch(ir.m){
 	
 	//RET
 	case 0:
-		//exit if we are at the base level
+	
+		//Exit if we are at the base level
 		if(bp == 1) {
 #if DEBUG
             printf("OPR RET at base level");
@@ -264,59 +264,59 @@ int opr() {
 		stack[sp] = -stack[sp];
 		break;
 		
-	//for all the below cases, -1 from the sp		
+	//For all the below cases, deincrement the sp first	
 	//ADD	
 	case 2:
 		sp -= 1;
-		stack[sp] = stack[sp] + stack[sp +1];
+		stack[sp] = stack[sp] + stack[sp + 1];
 		break;
 		
 	//SUB
 	case 3:
 		sp -= 1;
-		stack[sp] = stack[sp] - stack[sp +1]; //Was accidentlly a copy of MUL
+		stack[sp] = stack[sp] - stack[sp +1];
 		break;
 		
 	//MUL
 	case 4:
 		sp -= 1;
-		stack[sp] = stack[sp] * stack[sp +1];
+		stack[sp] = stack[sp] * stack[sp + 1];
 		break;
 	
 	//DIV
 	case 5:	
 		sp -= 1;
-		stack[sp] = stack[sp]/stack[sp +1];
+		stack[sp] = stack[sp]/stack[sp + 1];
 		break;
 		
 	//ODD
 	case 6:
 		sp -= 1;
-		stack[sp] = stack[sp] %2;
+		stack[sp] = stack[sp] % 2;
 		break;
 		
 	//MOD
 	case 7:
 		sp -= 1;
-		stack[sp] = stack[sp] % stack[(sp) +1];
+		stack[sp] = stack[sp] % stack[(sp) + 1];
 		break;
 	
 	//EQL
 	case 8:
 		sp -= 1;
-		stack[sp] = stack[sp] == stack[sp +1];
+		stack[sp] = stack[sp] == stack[sp + 1];
 		break;
 		
 	//NEQ
 	case 9:
 		sp -= 1;
-		stack[sp] = stack[sp] != stack[sp +1];
+		stack[sp] = stack[sp] != stack[sp + 1];
 		break;
 	
 	//LSS
 	case 10:
 		sp -= 1;
-		stack[sp] = stack[sp] < stack[sp +1];
+		stack[sp] = stack[sp] < stack[sp + 1];
 		break;		
 	
 	//LEQ
@@ -349,21 +349,18 @@ int opr() {
 }
 
 //LOD - Get value at offset M in frame L levels down and push it
-//Jerasimos
 void lod() {
 	sp = sp + 1;
 	stack[sp] = stack[base(ir.l, bp) + ir.m];
 }
 
 //STO - Pop stack and insert value at offset M in frame L levels down
-//Jerasimos
 void sto() {
 	stack[ base(ir.l, bp) + ir.m ] = stack[sp];
 	sp = sp - 1;
 }
 
 //CAL - Call procedure at M (generates new stack frame
-//Jerasimos
 void cal() {
 	verticalBars[sp] = 1;
 	stack[sp + 1] = 0;
@@ -375,18 +372,16 @@ void cal() {
 }
 
 //INC - Allocate M locals on stack
-//Jerasimos
 void inc() {
 	sp = sp + ir.m;
 }
 
-//Gabriela
 //Work in progress
 //JMP - Jump to M
 void jmp() {
 	pc = ir.m;
 }
-//Gabriela
+
 //Work in progress
 //JPC - Pop stack and jump to M if value is equal to 0
 void jpc() {
@@ -396,8 +391,6 @@ void jpc() {
 	sp -= 1;
 }
 
-//Jonathan
-//I'm assuming he wants us to read and print from console?
 //SIO - Depending on the modifier it will either
 //Pop stack and print out value,
 //Read in input from user and push it,
@@ -495,9 +488,4 @@ int base( int level, int b){
 	}
 	return b;
 }
-
-
-
-
-
 
