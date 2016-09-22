@@ -36,7 +36,8 @@ struct instruction{
 } ir, code[MAX_CODE_LENGTH];
 int  numInstructions = 0;
 
-int  stack[ MAX_STACK_HEIGHT ];
+int stack[ MAX_STACK_HEIGHT ];
+int verticalBars[ MAX_STACK_HEIGHT ];
 
 void initialize();
 void printCode();
@@ -94,8 +95,8 @@ int main(int argc, char** argv) {
     printCode();
     
     printf("Execution:\n");
-    printf("              pc  bp  sp    stack\n");
-    printf("              %2d  %2d  %2d\n", pc, bp, sp);
+    printf("                      pc   bp   sp    stack\n");
+    printf("                    %4d %4d %4d\n", pc, bp, sp);
     
     while (!halt) {
         int index = pc;
@@ -129,7 +130,7 @@ void printCode() {
 		else if( i < 10 )
 			printf(" ");
         sprintf(isL,"%d",isr.l);
-        sprintf(isM,"%2d",isr.m);
+        sprintf(isM,"%5d",isr.m);
         
         switch (isr.op) {
         case 1: strncpy(isO,"LIT",ISIZE); strncpy(isL," ",ISIZE); break;
@@ -168,14 +169,14 @@ void printCode() {
         default: break;
         }
         
-        sprintf(codeOutput[i],"%2d %s %s %s ",i,isO,isL,isM);
+        sprintf(codeOutput[i],"%2d %s %4s %5s ",i,isO,isL,isM);
         printf("%s\n",codeOutput[i]);
     }
     printf("\n");
 }
 
 void printExecution(int index) {
-    printf("%s  %2d  %2d  %2d  ",codeOutput[index],pc,bp,sp);
+    printf("%s  %4d %4d %4d  ",codeOutput[index],pc,bp,sp);
     
     //why start at i=1? whats stack[0]?
     //he said stack[0] should always be 0 -Austin
@@ -183,6 +184,8 @@ void printExecution(int index) {
     printf("  ");
     for (int i=1; i<sp+1; i++) {
         printf("%d  ",stack[i]);
+		if(verticalBars[i] == 1 && i < sp )
+			printf("|  ");
     }
     printf("\n");
 }
@@ -240,6 +243,7 @@ void lit() {
 int opr() {
 	switch(ir.m){
 	
+	//RET
 	case 0:
 		//exit if we are at the base level
 		if(bp == 1) {
@@ -248,6 +252,7 @@ int opr() {
 #endif
 			return 0;
 		}
+		verticalBars[sp] = 0;
 		sp = bp - 1;
 		pc = stack[sp + 4];
 		bp = stack[sp + 3];
@@ -269,7 +274,7 @@ int opr() {
 	//SUB
 	case 3:
 		sp -= 1;
-		stack[sp] = stack[sp] * stack[sp +1];
+		stack[sp] = stack[sp] - stack[sp +1]; //Was accidentlly a copy of MUL
 		break;
 		
 	//MUL
@@ -360,6 +365,7 @@ void sto() {
 //CAL - Call procedure at M (generates new stack frame
 //Jerasimos
 void cal() {
+	verticalBars[sp] = 1;
 	stack[sp + 1] = 0;
 	stack[sp + 2] = base(ir.l, bp);
 	stack[sp + 3] = bp;
