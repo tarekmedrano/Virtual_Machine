@@ -10,7 +10,7 @@
 #include <string.h>
 
 //Set to 0 when turning in assignment
-#define DEBUG               0
+#define DEBUG               1
 
 #define MAX_LINE_LENGTH     256
 #define MAX_ARG_LENGTH      16
@@ -80,13 +80,16 @@ int main(int argc, char** argv) {
         
         int hasIr = readInstruction(&instruct, line, MAX_LINE_LENGTH);
         
-        if (!hasIr) break;
+        if (!hasIr) {
+            c--;
+            break;
+        }
         
         code[c] = instruct;
         
         c++;
     }
-    numInstructions = c-1;
+    numInstructions = c;
     
     initialize();
 
@@ -342,6 +345,7 @@ void lod() {
 //Jerasimos
 void sto() {
 	stack[ base(ir.l, bp) + ir.m ] = stack[sp];
+	sp = sp - 1;
 }
 
 //CAL - Call procedure at M (generates new stack frame
