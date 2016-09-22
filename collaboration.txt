@@ -5,17 +5,17 @@ Jerasimos Strakosha
 Tarek Medrano
 Jonathan Lacombe
 
-Austin Dragone
--details
+-Austin Dragone
+Made the initial outline of project, and wrote the lit function. Created the feature that put vertical bars in the stack output when necessary. Tested inputs to make sure it matched the provided output. Fixed bugs involving incorrect stack output, general output format, and several function issues.
 
-Gabriela Fisher
--details
+-Gabriela Fisher
+details
 
-Jerasimos Strakosha
--details
+-Jerasimos Strakosha
+details
 
-Tarek Medrano
--details
+-Tarek Medrano
+details
 
-Jonathan Lacombe
--details
+-Jonathan Lacombe
+details
