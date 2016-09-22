@@ -223,30 +223,30 @@ int opr() {
 //Jerasimos
 void lod() {
 	sp = sp + 1;
-	stack[sp] - stack[base(instruct.l, bp) + instruct.m];
+	stack[sp] - stack[base(ir.l, bp) + ir.m];
 }
 
 //STO - Pop stack and insert value at offset M in frame L levels down
 //Jerasimos
 void sto() {
-	stack[ base(instruct.l, bp) + instruct.m ] = stack[sp];
+	stack[ base(ir.l, bp) + ir.m ] = stack[sp];
 }
 
 //CAL - Call procedure at M (generates new stack frame
 //Jerasimos
 void cal() {
 	stack[sp + 1] = 0;
-	stack[sp + 2] = base(instruct.l, bp);
+	stack[sp + 2] = base(ir.l, bp);
 	stack[sp + 3] = bp;
 	stack[sp + 4] = pc;
 	bp = sp + 1;
-	pc = instruct.m;
+	pc = ir.m;
 }
 
 //INC - Allocate M locals on stack
 //Jerasimos
 void inc() {
-	sp = sp + instruct.m;
+	sp = sp + ir.m;
 }
 
 //Gabriela
