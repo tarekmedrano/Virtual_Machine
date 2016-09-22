@@ -12,7 +12,12 @@ Made the initial outline of project, and wrote the lit function. Created the fea
 details
 
 -Jerasimos Strakosha
-details
+worked on the functions : Lod, Sto, Cal, and Inc.
+posting solutions to the  VM.c file fixing the errors and warnings that it would spit out.
+found the solution to the seg fault.
+tested inputs.
+
+
 
 -Tarek Medrano
 details
