@@ -172,8 +172,8 @@ void printCode() {
 void printExecution(int index) {
     printf("%s \t %d  %d  %d  \t",codeOutput[index],pc,bp,sp);
     printf("\t");
-    //fix this to only show whats under stack pointer
-    for (int i=0; i<20; i++) {
+    //why start at i=1? whats stack[0]?
+    for (int i=1; i<sp+1; i++) {
         printf("%d  ",stack[i]);
     }
     printf("\n");
@@ -217,10 +217,6 @@ int execute() {
 //This is assuming the stack pointer points to data so we must increment first
 //Austin
 void lit() {
-    //Jonathan
-    //Wocjan says you should increment sp by 1 then push
-    //but from the output it looks like you push then increment?
-    
     sp = sp + 1;
     stack[sp] = ir.m;
 	
@@ -235,11 +231,16 @@ void lit() {
 //to run
 int opr() {
 	switch(ir.m){
+	
 	case 0:
 		//exit if we are at the base level
-		if(bp == 1)
+		if(bp == 1) {
+#if DEBUG
+            printf("OPR RET at base level");
+#endif
 			return 0;
-		sp = bp -1;
+		}
+		sp = bp - 1;
 		pc = stack[sp + 4];
 		bp = stack[sp + 3];
 		break;
@@ -338,7 +339,7 @@ int opr() {
 //Jerasimos
 void lod() {
 	sp = sp + 1;
-	stack[sp] - stack[base(ir.l, bp) + ir.m];
+	stack[sp] = stack[base(ir.l, bp) + ir.m];
 }
 
 //STO - Pop stack and insert value at offset M in frame L levels down
@@ -478,6 +479,7 @@ int base( int level, int b){
 		b = stack[b+1];
 		level--;
 	}
+	return b;
 }
 
 
