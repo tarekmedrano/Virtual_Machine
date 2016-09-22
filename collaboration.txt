@@ -9,7 +9,8 @@ Jonathan Lacombe
 Made the initial outline of project, and wrote the lit function. Created the feature that put vertical bars in the stack output when necessary. Tested inputs to make sure it matched the provided output. Fixed bugs involving incorrect stack output, general output format, and several function issues.
 
 -Gabriela Fisher
-details
+Worked on the jmp and jpc functions
+Tested inputs
 
 -Jerasimos Strakosha
 worked on the functions : Lod, Sto, Cal, and Inc.
