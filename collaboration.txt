@@ -22,7 +22,8 @@ added a base funtion.
 
 
 -Tarek Medrano
-details
+Completed the Opr function and the arithmetic/logical instructions involved.
+sampled test cases, general syntax debugging.
 
 -Jonathan Lacombe
 details
