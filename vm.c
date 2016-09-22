@@ -123,14 +123,19 @@ void printCode() {
         char isL[MAX_ARG_LENGTH];
         char isM[MAX_ARG_LENGTH];
         
+	if( i < 100 )
+	    printf(" ");
+	else if( i < 10 )
+	    printf(" ");
         sprintf(isL,"%d",isr.l);
-        sprintf(isM,"%d",isr.m);
+        sprintf(isM,"%2d",isr.m);
         
         switch (isr.op) {
         case 1: strncpy(isO,"LIT",ISIZE); strncpy(isL," ",ISIZE); break;
         case 2:
             switch(isr.m) {
             case 0:  strncpy(isO,"RET",ISIZE); break;
+            	     strncpy(isL," ",ISIZE); strncpy(isM,"  ",ISIZE); 
             case 1:  strncpy(isO,"NEG",ISIZE); break;
             case 2:  strncpy(isO,"ADD",ISIZE); break;
             case 3:  strncpy(isO,"SUB",ISIZE); break;
@@ -145,7 +150,7 @@ void printCode() {
             case 12: strncpy(isO,"GTR",ISIZE); break;
             case 13: strncpy(isO,"GEQ",ISIZE); break;
             }
-            strncpy(isL," ",ISIZE); strncpy(isM," ",ISIZE); break;
+            break;
         case 3: strncpy(isO,"LOD",ISIZE); break;
         case 4: strncpy(isO,"STO",ISIZE); break;
         case 5: strncpy(isO,"CAL",ISIZE); break;
@@ -158,20 +163,26 @@ void printCode() {
             case 1: strncpy(isO,"INP",ISIZE); break;
             case 2: strncpy(isO,"HLT",ISIZE); break;
             }
-            strncpy(isL," ",ISIZE); strncpy(isM," ",ISIZE); break;
+            strncpy(isL," ",ISIZE); strncpy(isM,"  ",ISIZE); break;
         default: break;
         }
         
-        sprintf(codeOutput[i],"%d %s %s %s",i,isO,isL,isM);
+        //sprintf(codeOutput[i],"%d %s %s %s",i,isO,isL,isM);
+        sprintf(codeOutput[i],"%2d %s %s %s ",i,isO,isL,isM);
         printf("%s\n",codeOutput[i]);
     }
     printf("\n");
 }
 
 void printExecution(int index) {
-    printf("%s \t %d  %d  %d  \t",codeOutput[index],pc,bp,sp);
+    printf("%s  %2d  %2d  %2d  ",codeOutput[index],pc,bp,sp);
+    //printf("%s \t %d  %d  %d  \t",codeOutput[index],pc,bp,sp);
     printf("\t");
+    
     //why start at i=1? whats stack[0]?
+    //he said stack[0] should always be 0 -Austin
+    int i;
+    printf("  ");
     for (int i=1; i<sp+1; i++) {
         printf("%d  ",stack[i]);
     }
@@ -213,7 +224,7 @@ int execute() {
 
 //LIT
 //Increment stack pointer by 1 then push instruction modifier onto stack
-//This is assuming the stack pointer points to data so we must increment first
+//Increment first since sp starts at 0, and stack[0] shouldn't be changed from 0
 //Austin
 void lit() {
     sp = sp + 1;
